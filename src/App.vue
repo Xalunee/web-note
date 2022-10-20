@@ -1,4 +1,7 @@
 <template>
+  <div class="container vh-100 vw-100 text-center" v-show="step === 0">
+    <h1>Заметки</h1>
+  </div>
   <div class="container d-flex justify-content-center align-items-center vh-100 vw-100">
     <form @submit.prevent="autorizationUser" novalidate  v-show="step === 1" class="border p-5 rounded">
       <div class="step">
@@ -14,6 +17,7 @@
         <p>Нет аккаунта? <span @click="register" role="button" class="text-primary">Зарегистрироваться</span></p>
       </div>
     </form>
+
     <form @submit.prevent="registrationUser" novalidate v-show="step === 2" class="border p-5 rounded">
       <div class="step">
         <div class="mb-3">
@@ -43,6 +47,7 @@
 import { useVuelidate } from '@vuelidate/core'
 import { required, email, minLength, maxLength, sameAs } from '@vuelidate/validators'
 import { reactive, computed } from 'vue'
+import axios from 'axios'
 
 export default {
   setup() {
@@ -86,6 +91,11 @@ export default {
       step: 1,
     }
   },
+  mounted() {
+    if (localStorage.accessToken) {
+      this.step = 0
+    }
+  },
   methods : {
     register() {
       if (this.step === 1) {
@@ -100,9 +110,22 @@ export default {
     autorizationUser() {
       this.v$.$validate()
       if (!this.v$.formAutoriz.$error) {
-        console.log('Авторизация прошла успешно')
-        console.log(this.state.formAutoriz.name)
-        console.log(this.state.formAutoriz.password)
+        axios.post('https://test-api.misaka.net.ru/api/Account/login', {
+          "username": this.state.formAutoriz.name,
+          "password": this.state.formAutoriz.password
+          })
+          .then(function(response) {
+            console.log('Ответ сервера успешно получен!');
+            console.log(`AccessToken - ${response.data.accessToken}`);
+            console.log(`RefreshToken - ${response.data.refreshToken}`);
+            localStorage.accessToken = response.data.accessToken;
+            localStorage.refreshToken = response.data.refreshToken;
+            location.reload()
+            this.step = 0;
+          })
+          .catch(() => {
+            console.log('Пользователь не найден');
+          })
       } else {
         console.log('Авторизация прошла неудачно')
       }
@@ -110,11 +133,23 @@ export default {
     registrationUser() {
       this.v$.$validate()
       if (!this.v$.formReg.$error) {
-        console.log('Регистрация прошла успешно')
-        console.log(this.state.formReg.name)
-        console.log(this.state.formReg.email)
-        console.log(this.state.formReg.password)
-        console.log(this.state.formReg.confirmPassword)
+        axios.post('https://test-api.misaka.net.ru/api/Account/register', {
+          "username": this.state.formReg.name,
+          "email": this.state.formReg.email,
+          "password": this.state.formReg.password
+          })
+          .then(function(response) {
+            console.log('Ответ с сервера успешно получен')
+            localStorage.accessToken = response.data.accessToken;
+            localStorage.refreshToken = response.data.refreshToken;
+            location.reload()
+            this.step = 0;
+            console.log(`AccessToken - ${response.data.accessToken}`);
+            console.log(`RefreshToken - ${response.data.refreshToken}`);
+          })
+          .catch(() => {
+            console.log('Пользователь зарегистрирован');
+          })
       } else {
         console.log('Регистрация прошла неудачно')
       }

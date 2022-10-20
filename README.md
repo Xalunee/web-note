@@ -1,4 +1,4 @@
-# webtodo
+# web-note
 
 ## Project setup
 ```
