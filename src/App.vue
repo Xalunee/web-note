@@ -93,7 +93,46 @@ export default {
   },
   mounted() {
     if (localStorage.accessToken) {
-      this.step = 0
+      this.step = 0;
+      axios.post('https://test-api.misaka.net.ru/api/Account/login', {
+        "username": localStorage.userName,
+        "password": localStorage.userPassword
+      })
+      .then(function(response) {
+        console.log('Ответ сервера успешно получен!');
+        localStorage.accessToken = response.data.accessToken;
+        localStorage.refreshToken = response.data.refreshToken;
+      })
+      .catch(() => {
+        console.log('Пользователь не найден');
+      })
+      setInterval(() => {
+        axios.post('https://test-api.misaka.net.ru/api/Account/refresh-token', {
+          "refreshToken": localStorage.refreshToken
+          })
+          .then(function(response) {
+            console.log('Загрузка токенов в localStorage');
+            localStorage.accessToken = response.data.accessToken;
+            localStorage.refreshToken = response.data.refreshToken;
+          })
+          .catch(() => {
+            console.log('Токен не загрузился');
+          })
+      }, 900000);
+
+      axios.get('https://test-api.misaka.net.ru/api/Account/user', {
+        headers: {
+          Authorization: `Bearer ${localStorage.accessToken}`,
+        }
+      })
+      .then(function(response) {
+        console.log(response.data.email)
+        console.log(response.data.id)
+        console.log(response.data.username)
+      })
+      .catch(() => {
+        console.log('Невозможно загрузить информацию о пользователе');
+      })
     }
   },
   methods : {
@@ -110,17 +149,18 @@ export default {
     autorizationUser() {
       this.v$.$validate()
       if (!this.v$.formAutoriz.$error) {
+        const user = {'name': this.state.formAutoriz.name, 'password': this.state.formAutoriz.password}
         axios.post('https://test-api.misaka.net.ru/api/Account/login', {
           "username": this.state.formAutoriz.name,
           "password": this.state.formAutoriz.password
           })
           .then(function(response) {
             console.log('Ответ сервера успешно получен!');
-            console.log(`AccessToken - ${response.data.accessToken}`);
-            console.log(`RefreshToken - ${response.data.refreshToken}`);
             localStorage.accessToken = response.data.accessToken;
             localStorage.refreshToken = response.data.refreshToken;
-            location.reload()
+            localStorage.userName = user.name;
+            localStorage.userPassword = user.password;
+            location.reload();
             this.step = 0;
           })
           .catch(() => {
@@ -133,6 +173,7 @@ export default {
     registrationUser() {
       this.v$.$validate()
       if (!this.v$.formReg.$error) {
+        const user = {'name': this.state.formReg.name, 'password': this.state.formReg.password};
         axios.post('https://test-api.misaka.net.ru/api/Account/register', {
           "username": this.state.formReg.name,
           "email": this.state.formReg.email,
@@ -142,10 +183,10 @@ export default {
             console.log('Ответ с сервера успешно получен')
             localStorage.accessToken = response.data.accessToken;
             localStorage.refreshToken = response.data.refreshToken;
-            location.reload()
+            localStorage.userName = user.name;
+            localStorage.userPassword = user.password;
+            location.reload();
             this.step = 0;
-            console.log(`AccessToken - ${response.data.accessToken}`);
-            console.log(`RefreshToken - ${response.data.refreshToken}`);
           })
           .catch(() => {
             console.log('Пользователь зарегистрирован');
