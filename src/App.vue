@@ -1,6 +1,32 @@
 <template>
-  <div class="container vh-100 vw-100 text-center" v-show="step === 0">
-    <h1>Заметки</h1>
+  <div class="text-center pt-2 100vh 100vw" v-show="step === 0">
+    <h5>Имя: {{ userInfo[0] }}</h5>
+    <h5>Почта: {{ userInfo[1] }}</h5>
+    <div class="container mt-5">
+      <div class="row row-cols-2">
+        <div class="left-side col-3">
+          <h4>Папки</h4>
+          <form @submit.prevent class="text-start border rounded p-2">
+            <h5><strong>Создание папки</strong></h5>
+            <label for="name" class="form-label">Название</label>
+            <input
+              v-bind:value="title"
+              @input="title = $event.target.value"
+              type="text"
+              class="form-control mb-3"
+              id="name"
+            >
+            <button type="submit" @click="createFolder" class="btn btn-outline-dark">Создать</button>
+          </form>
+          <div class="folder border rounded p-3 mt-2" v-for="folder in folders" v-bind:key="folder">
+            <div><strong>{{ folder.title }}</strong></div>
+          </div>
+        </div>
+        <div class="right-side col-9 text-center">
+          <h4>Заметки</h4>
+        </div>
+      </div>
+    </div>
   </div>
   <div class="container d-flex justify-content-center align-items-center vh-100 vw-100">
     <form @submit.prevent="autorizationUser" novalidate  v-show="step === 1" class="border p-5 rounded">
@@ -89,6 +115,12 @@ export default {
   data() {
     return {
       step: 1,
+      userInfo: [localStorage.userName, localStorage.userEmail],
+      folders: [
+        {id: 1, title: 'JavaScript'},
+        {id: 2, title: 'Go'}
+      ],
+      title: ''
     }
   },
   mounted() {
@@ -127,11 +159,13 @@ export default {
       })
       .then(function(response) {
         console.log(response.data.email)
+        localStorage.userEmail = response.data.email;
         console.log(response.data.id)
         console.log(response.data.username)
       })
       .catch(() => {
         console.log('Невозможно загрузить информацию о пользователе');
+        console.log(this.userInfo[0])
       })
     }
   },
@@ -194,6 +228,13 @@ export default {
       } else {
         console.log('Регистрация прошла неудачно')
       }
+    },
+    createFolder() {
+      const newFolder = {
+        id: Date.now(),
+        title: this.title
+      }
+      this.folders.push(newFolder);
     }
   }
 }
