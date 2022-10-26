@@ -299,12 +299,37 @@ export default {
       }
     },
     createFolder(folder) {
-      this.folders.push(folder);
-      console.log(folder)
+      axios
+        .post("https://test-api.misaka.net.ru/api/Folders", {
+          name: folder.name,
+          color: folder.color
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.accessToken}`,
+          }
+        })
+        .then(() => {
+          this.fetchFolders()
+        })
+        .catch(() => {
+          console.log("Ошибка на добавление папки");
+        });
       this.dialogVisible = false;
     },
     removeFolder(folder) {
-      this.folders = this.folders.filter(f => f.id !== folder.id);
+      axios
+      .delete(`https://test-api.misaka.net.ru/api/Folders/${folder.id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.accessToken}`,
+        }
+      })
+      .then(() => {
+        this.fetchFolders();
+      })
+      .catch(() => {
+        console.log('Папка не удалена')
+      })
     },
     showDialog() {
       this.dialogVisible = true;

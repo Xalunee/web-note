@@ -8,6 +8,13 @@
       class="form-control mb-3"
       id="name"
     />
+    <label for="color" class="form-label">Цвет</label>
+    <my-select
+      class="form-control mb-3"
+      id="color"
+      v-model="folder.color"
+      :options="colorOptions"
+    />
     <button
     @click="createFolder"
     type="submit"
@@ -18,23 +25,36 @@
 </template>
 
 <script>
+import MySelect from './UI/MySelect.vue';
+
 export default {
-  data() {
-    return {
-      folder: {
-        name: ''
-      }
-    }
-  },
-  methods: {
-    createFolder() {
-      this.folder.id = Date.now();
-      this.$emit('create', this.folder)
-      this.folder = {
-        name: ''
-      }
-    }
-  },
+    data() {
+        return {
+            folder: {
+              name: "",
+              color: ""
+            },
+            colorOptions: [
+              {value: 'Blue', name: 'Blue'},
+              {value: 'Orange', name: 'Orange'},
+              {value: 'Yellow', name: 'Yellow'},
+              {value: 'Purple', name: 'Purple'},
+              {value: 'Pink', name: 'Pink'},
+              {value: 'Green', name: 'Green'},
+              {value: 'Lime', name: 'Lime'},
+              {value: 'LightGray', name: 'LightGray'},
+            ]
+        };
+    },
+    methods: {
+        createFolder() {
+            this.$emit("create", this.folder);
+            this.folder = {
+                name: ""
+            };
+        }
+    },
+    components: { MySelect }
 };
 </script>
 
