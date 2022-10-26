@@ -1,12 +1,11 @@
 <template>
   <div v-if="step === 0" class="text-center pt-2 100vh 100vw">
-    <h5>Имя: {{ userInfo[0] }}</h5>
-    <h5>Почта: {{ userInfo[1] }}</h5>
+    <h5>Имя: {{ userInfo.userName }}</h5>
+    <h5>Почта: {{ userInfo.userEmail }}</h5>
     <div class="container mt-5">
       <div class="row row-cols-2">
         <div class="left-side col-3">
           <h4>Папки</h4>
-          <button @click="fetchFolders" class="btn btn-outline-success btn-lg">Получить папки</button>
           <button
             @click="showDialog"
             class="btn btn-outline-success btn-lg"
@@ -181,21 +180,22 @@ export default {
   data() {
     return {
       step: 1,
-      userInfo: [localStorage.userName, localStorage.userEmail],
+      userInfo: {},
       folders: [],
       dialogVisible: false,
     };
   },
   mounted() {
     if (localStorage.accessToken) {
+      this.fetchUserInfo();
       this.step = 0;
+      this.fetchFolders();
       axios
         .post("https://test-api.misaka.net.ru/api/Account/login", {
           username: localStorage.userName,
           password: localStorage.userPassword,
         })
         .then(function (response) {
-          console.log("Ответ сервера успешно получен!");
           localStorage.accessToken = response.data.accessToken;
           localStorage.refreshToken = response.data.refreshToken;
         })
@@ -208,7 +208,6 @@ export default {
             refreshToken: localStorage.refreshToken,
           })
           .then(function (response) {
-            console.log("Загрузка токенов в localStorage");
             localStorage.accessToken = response.data.accessToken;
             localStorage.refreshToken = response.data.refreshToken;
           })
@@ -216,22 +215,6 @@ export default {
             console.log("Токен не загрузился");
           });
       }, 900000);
-      axios
-        .get("https://test-api.misaka.net.ru/api/Account/user", {
-          headers: {
-            Authorization: `Bearer ${localStorage.accessToken}`,
-          },
-        })
-        .then(function (response) {
-          console.log(response.data.email);
-          localStorage.userEmail = response.data.email;
-          console.log(response.data.id);
-          console.log(response.data.username);
-        })
-        .catch(() => {
-          console.log("Невозможно загрузить информацию о пользователе");
-          console.log(this.userInfo[0]);
-        });
     }
   },
   methods: {
@@ -258,7 +241,6 @@ export default {
             password: this.state.formAutoriz.password,
           })
           .then(function (response) {
-            console.log("Ответ сервера успешно получен!");
             localStorage.accessToken = response.data.accessToken;
             localStorage.refreshToken = response.data.refreshToken;
             localStorage.userName = user.name;
@@ -287,7 +269,6 @@ export default {
             password: this.state.formReg.password,
           })
           .then(function (response) {
-            console.log("Ответ с сервера успешно получен");
             localStorage.accessToken = response.data.accessToken;
             localStorage.refreshToken = response.data.refreshToken;
             localStorage.userName = user.name;
@@ -302,28 +283,43 @@ export default {
         console.log("Регистрация прошла неудачно");
       }
     },
+    async fetchUserInfo() {
+      try {
+        const response = await
+        axios
+        .get("https://test-api.misaka.net.ru/api/Account/user", {
+          headers: {
+            Authorization: `Bearer ${localStorage.accessToken}`,
+          },
+        });
+        this.userInfo.userName = response.data.username;
+        this.userInfo.userEmail = response.data.email;
+      } catch (e) {
+        console.log("Невозможно загрузить информацию о пользователе");
+      }
+    },
     createFolder(folder) {
       this.folders.push(folder);
+      console.log(folder)
       this.dialogVisible = false;
     },
     removeFolder(folder) {
-      this.folders = this.folders.filter(f => f.id !== folder.id)
+      this.folders = this.folders.filter(f => f.id !== folder.id);
     },
     showDialog() {
       this.dialogVisible = true;
-
     },
     async fetchFolders() {
       try {
         const response = await
-        axios.get('https://test-api.misaka.net.ru/api/Folders', {
+        axios.get("https://test-api.misaka.net.ru/api/Folders", {
           headers: {
             Authorization: `Bearer ${localStorage.accessToken}`,
           },
         });
         this.folders = response.data;
       } catch (e) {
-        alert('Ошибка получения папок')
+        console.log("Ошибка получения папок");
       }
     }
   },

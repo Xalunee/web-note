@@ -3,7 +3,7 @@
     <h5><strong>Создание папки</strong></h5>
     <label for="name" class="form-label">Название</label>
     <input
-      v-model="folder.title"
+      v-model="folder.name"
       type="text"
       class="form-control mb-3"
       id="name"
@@ -22,7 +22,7 @@ export default {
   data() {
     return {
       folder: {
-        title: ''
+        name: ''
       }
     }
   },
@@ -31,7 +31,7 @@ export default {
       this.folder.id = Date.now();
       this.$emit('create', this.folder)
       this.folder = {
-        title: ''
+        name: ''
       }
     }
   },
