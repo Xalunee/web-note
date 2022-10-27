@@ -22,10 +22,17 @@
             :folders="folders"
             @remove="removeFolder"
             @edit="editFolder"
+            @showNotes="showNotes"
           />
         </div>
         <div class="right-side col-9 text-center">
           <h4>Заметки</h4>
+          <div class="notes">
+            <notes-list
+              :notes="notes"
+              class="d-flex flex-wrap"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -144,6 +151,8 @@ import { reactive, computed } from "vue";
 import axios from "axios";
 import FolderFormEdit from "./components/FolderFormEdit.vue";
 import MyDialogEdit from "./components/UI/MyDialogEdit.vue";
+import NotesList from "./components/NotesList.vue";
+
 
 export default {
   setup() {
@@ -191,7 +200,8 @@ export default {
       notes: [],
       dialogVisible: false,
       dialogEditVisible: false,
-      folderId: '',
+      selectedFolderEditId: '',
+      selectedFolderId: '',
     };
   },
   mounted() {
@@ -342,11 +352,11 @@ export default {
     },
     editFolder(folder) {
       this.dialogEditVisible = true;
-      this.folderId = folder.id
+      this.selectedFolderEditId = folder.id
     },
     editFolderForm(folder) {
       axios
-      .put(`https://test-api.misaka.net.ru/api/Folders/${this.folderId}`,
+      .put(`https://test-api.misaka.net.ru/api/Folders/${this.selectedFolderEditId}`,
       {
         name: folder.name,
         color: folder.color
@@ -364,6 +374,10 @@ export default {
         console.log('Папка не изменилась')
       })
     },
+    showNotes(folder) {
+      this.selectedFolderId = folder.id;
+      this.fetchNotes();
+    },
     showDialog() {
       this.dialogVisible = true;
     },
@@ -379,9 +393,22 @@ export default {
       } catch (e) {
         console.log("Ошибка получения папок");
       }
+    },
+    async fetchNotes() {
+      try {
+        const response = await
+        axios.get(`https://test-api.misaka.net.ru/api/Folders/${this.selectedFolderId}/notes`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.accessToken}`,
+          },
+        });
+        this.notes = response.data;
+      } catch (e) {
+      console.log("Ошибка получения заметок");
+      }
     }
   },
-  components: { FolderForm, FolderList, FolderFormEdit, MyDialogEdit },
+  components: { FolderForm, FolderList, FolderFormEdit, MyDialogEdit, NotesList },
 };
 </script>
 
