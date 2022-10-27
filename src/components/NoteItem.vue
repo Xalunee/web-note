@@ -11,10 +11,13 @@
         <p>{{ note.content }}</p>
       </div>
       <div class="note__btns d-flex justify-content-between">
-      <button class="btn btn-danger btn-sm" @click="$emit('remove', note)">
-        Удалить
-      </button>
-    </div>
+        <button class="btn btn-dark btn-sm" @click="$emit('edit', note)">
+          Изменить
+        </button>
+        <button class="btn btn-danger btn-sm" @click="$emit('remove', note)">
+          Удалить
+        </button>
+      </div>
     </div>
   </div>
 </template>

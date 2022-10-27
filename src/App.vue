@@ -28,6 +28,7 @@
         <div class="right-side col-9 text-center">
           <h4>Заметки</h4>
           <button
+            v-if="selectedFolderId.length > 0"
             @click="showNoteDialog"
             class="btn btn-outline-success btn-lg"
           >
@@ -36,9 +37,13 @@
           <my-dialog v-model:show="dialogNoteVisible">
             <note-form-create @create="createNote" />
           </my-dialog>
+          <my-dialog v-model:show="dialogEditNoteVisible">
+            <note-form-edit @edit="editNoteForm" />
+          </my-dialog>
           <div class="notes">
             <notes-list
               :notes="notes"
+              @edit="editNote"
               @remove="removeNote"
               class="d-flex flex-wrap"
             />
@@ -162,6 +167,7 @@ import axios from "axios";
 import FolderFormEdit from "./components/FolderFormEdit.vue";
 import NotesList from "./components/NotesList.vue";
 import NoteFormCreate from "./components/NoteFormCreate.vue";
+import NoteFormEdit from "./components/NoteFormEdit.vue";
 
 
 export default {
@@ -211,8 +217,10 @@ export default {
       dialogVisible: false,
       dialogEditVisible: false,
       dialogNoteVisible: false,
+      dialogEditNoteVisible: false,
       selectedFolderEditId: '',
       selectedFolderId: '',
+      selectedNoteEditId: '',
     };
   },
   mounted() {
@@ -422,6 +430,31 @@ export default {
         console.log('Заметка не удалена');
       })
     },
+    editNote(note) {
+      this.dialogEditNoteVisible = true;
+      this.selectedNoteEditId = note.id;
+    },
+    editNoteForm(note) {
+      axios
+      .put(`https://test-api.misaka.net.ru/api/Notes/${this.selectedNoteEditId}`,
+      {
+        title: note.title,
+        content: note.content,
+        color: note.color
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.accessToken}`,
+        }
+      })
+      .then(() => {
+        this.fetchNotes();
+        this.dialogEditNoteVisible = false;
+      })
+      .catch(() => {
+        console.log('Заметка не изменилась')
+      })
+    },
     showNotes(folder) {
       this.selectedFolderId = folder.id;
       this.fetchNotes();
@@ -459,7 +492,7 @@ export default {
       }
     }
   },
-  components: { FolderForm, FolderList, FolderFormEdit, NotesList, NoteFormCreate },
+  components: { FolderForm, FolderList, FolderFormEdit, NotesList, NoteFormCreate, NoteFormEdit },
 };
 </script>
 

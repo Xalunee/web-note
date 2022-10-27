@@ -5,6 +5,7 @@
       :note="note"
       :key="note.id"
       @remove="$emit('remove', note)"
+      @edit="$emit('edit', note)"
     />
   </div>
 </template>
