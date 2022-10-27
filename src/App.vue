@@ -39,6 +39,7 @@
           <div class="notes">
             <notes-list
               :notes="notes"
+              @remove="removeNote"
               class="d-flex flex-wrap"
             />
           </div>
@@ -398,12 +399,28 @@ export default {
         })
         .then(() => {
           this.fetchNotes();
+          this.fetchFolders();
           this.dialogNoteVisible = false;
         })
         .catch(() => {
           console.log("Ошибка на добавление заметки");
         });
       this.dialogVisible = false;
+    },
+    removeNote(note) {
+      axios
+      .delete(`https://test-api.misaka.net.ru/api/Notes/${note.id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.accessToken}`,
+        }
+      })
+      .then(() => {
+        this.fetchNotes();
+        this.fetchFolders();
+      })
+      .catch(() => {
+        console.log('Заметка не удалена');
+      })
     },
     showNotes(folder) {
       this.selectedFolderId = folder.id;

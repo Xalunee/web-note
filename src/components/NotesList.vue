@@ -1,9 +1,10 @@
 <template>
   <div>
     <note-item
-    v-for="note in notes"
-    :note="note"
-    :key="note.id"
+      v-for="note in notes"
+      :note="note"
+      :key="note.id"
+      @remove="$emit('remove', note)"
     />
   </div>
 </template>
