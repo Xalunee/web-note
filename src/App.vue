@@ -15,9 +15,13 @@
           <my-dialog v-model:show="dialogVisible">
             <folder-form @create="createFolder"/>
           </my-dialog>
+          <my-dialog-edit v-model:show="dialogEditVisible">
+            <folder-form-edit @edit="editFolderForm" />
+          </my-dialog-edit>
           <folder-list 
             :folders="folders"
             @remove="removeFolder"
+            @edit="editFolder"
           />
         </div>
         <div class="right-side col-9 text-center">
@@ -138,6 +142,8 @@ import {
 } from "@vuelidate/validators";
 import { reactive, computed } from "vue";
 import axios from "axios";
+import FolderFormEdit from "./components/FolderFormEdit.vue";
+import MyDialogEdit from "./components/UI/MyDialogEdit.vue";
 
 export default {
   setup() {
@@ -182,7 +188,10 @@ export default {
       step: 1,
       userInfo: {},
       folders: [],
+      notes: [],
       dialogVisible: false,
+      dialogEditVisible: false,
+      folderId: '',
     };
   },
   mounted() {
@@ -331,6 +340,30 @@ export default {
         console.log('Папка не удалена')
       })
     },
+    editFolder(folder) {
+      this.dialogEditVisible = true;
+      this.folderId = folder.id
+    },
+    editFolderForm(folder) {
+      axios
+      .put(`https://test-api.misaka.net.ru/api/Folders/${this.folderId}`,
+      {
+        name: folder.name,
+        color: folder.color
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.accessToken}`,
+        }
+      })
+      .then(() => {
+        this.fetchFolders();
+        this.dialogEditVisible = false;
+      })
+      .catch(() => {
+        console.log('Папка не изменилась')
+      })
+    },
     showDialog() {
       this.dialogVisible = true;
     },
@@ -348,7 +381,7 @@ export default {
       }
     }
   },
-  components: { FolderForm, FolderList },
+  components: { FolderForm, FolderList, FolderFormEdit, MyDialogEdit },
 };
 </script>
 

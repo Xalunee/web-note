@@ -1,6 +1,6 @@
 <template>
   <form @submit.prevent class="text-start rounded p-2">
-    <h5><strong>Создание папки</strong></h5>
+    <h5><strong>Изменение папки</strong></h5>
     <label for="name" class="form-label">Название</label>
     <input
       v-model="folder.name"
@@ -15,9 +15,7 @@
       v-model="folder.color"
       :options="colorOptions"
     />
-    <button @click="createFolder" type="submit" class="btn btn-outline-dark">
-      Создать
-    </button>
+    <button class="btn btn-dark" @click="editFolder">Изменить</button>
   </form>
 </template>
 
@@ -44,8 +42,8 @@ export default {
     };
   },
   methods: {
-    createFolder() {
-      this.$emit("create", this.folder);
+    editFolder() {
+      this.$emit("edit", this.folder);
       this.folder = {
         name: "",
       };

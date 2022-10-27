@@ -1,10 +1,14 @@
 <template>
   <div>
+    <my-dialog v-model:show="dialogEditVisible">
+      <folder-form-edit @create="editFolder" />
+    </my-dialog>
     <folder-item
     v-for="folder in folders"
     :folder="folder"
     :key="folder.id"
     @remove="$emit('remove', folder)"
+    @edit="$emit('edit', folder)"
     />
   </div>
 </template>

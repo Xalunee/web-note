@@ -6,11 +6,14 @@
     <div>
       <h5>
         <strong>{{ folder.name }}</strong>
-        <p>Заметок: {{ folder.notesCount }}</p>
       </h5>
+      <p>Заметок: {{ folder.notesCount }}</p>
     </div>
-    <div class="folder__btns">
-      <button class="btn btn-danger btn-sm" @click="$emit('remove', folder)">
+    <div class="folder__btns d-flex justify-content-between">
+      <button class="btn btn-dark" @click="$emit('edit', folder)">
+        Изменить
+      </button>
+      <button class="btn btn-danger" @click="$emit('remove', folder)">
         Удалить
       </button>
     </div>
