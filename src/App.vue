@@ -10,14 +10,14 @@
             @click="showDialog"
             class="btn btn-outline-success btn-lg"
           >
-          Создать
+            Создать
           </button>
           <my-dialog v-model:show="dialogVisible">
             <folder-form @create="createFolder"/>
           </my-dialog>
-          <my-dialog-edit v-model:show="dialogEditVisible">
+          <my-dialog v-model:show="dialogEditVisible">
             <folder-form-edit @edit="editFolderForm" />
-          </my-dialog-edit>
+          </my-dialog>
           <folder-list 
             :folders="folders"
             @remove="removeFolder"
@@ -27,6 +27,15 @@
         </div>
         <div class="right-side col-9 text-center">
           <h4>Заметки</h4>
+          <button
+            @click="showNoteDialog"
+            class="btn btn-outline-success btn-lg"
+          >
+            Создать
+          </button>
+          <my-dialog v-model:show="dialogNoteVisible">
+            <note-form-create @create="createNote" />
+          </my-dialog>
           <div class="notes">
             <notes-list
               :notes="notes"
@@ -150,8 +159,8 @@ import {
 import { reactive, computed } from "vue";
 import axios from "axios";
 import FolderFormEdit from "./components/FolderFormEdit.vue";
-import MyDialogEdit from "./components/UI/MyDialogEdit.vue";
 import NotesList from "./components/NotesList.vue";
+import NoteFormCreate from "./components/NoteFormCreate.vue";
 
 
 export default {
@@ -200,6 +209,7 @@ export default {
       notes: [],
       dialogVisible: false,
       dialogEditVisible: false,
+      dialogNoteVisible: false,
       selectedFolderEditId: '',
       selectedFolderId: '',
     };
@@ -374,12 +384,36 @@ export default {
         console.log('Папка не изменилась')
       })
     },
+    createNote(note) {
+      axios
+        .post(`https://test-api.misaka.net.ru/api/Folders/${this.selectedFolderId}/notes`, {
+          title: note.title,
+          content: note.content,
+          color: note.color
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.accessToken}`,
+          }
+        })
+        .then(() => {
+          this.fetchNotes();
+          this.dialogNoteVisible = false;
+        })
+        .catch(() => {
+          console.log("Ошибка на добавление заметки");
+        });
+      this.dialogVisible = false;
+    },
     showNotes(folder) {
       this.selectedFolderId = folder.id;
       this.fetchNotes();
     },
     showDialog() {
       this.dialogVisible = true;
+    },
+    showNoteDialog() {
+      this.dialogNoteVisible = true;
     },
     async fetchFolders() {
       try {
@@ -408,7 +442,7 @@ export default {
       }
     }
   },
-  components: { FolderForm, FolderList, FolderFormEdit, MyDialogEdit, NotesList },
+  components: { FolderForm, FolderList, FolderFormEdit, NotesList, NoteFormCreate },
 };
 </script>
 
