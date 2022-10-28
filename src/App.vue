@@ -73,6 +73,9 @@
             class="form-control"
             id="name"
           />
+          <span v-if="v$.formAutoriz.name.$error">
+            {{ v$.formAutoriz.name.$errors[0].$message }}
+          </span>
         </div>
         <div class="mb-3">
           <label for="password" class="form-label">Пароль</label>
@@ -82,6 +85,9 @@
             class="form-control"
             id="password"
           />
+          <span v-if="v$.formAutoriz.name.$error">
+            {{ v$.formAutoriz.name.$errors[0].$message }}
+          </span>
         </div>
         <button type="submit" class="btn btn-primary mb-1">Войти</button>
         <p>
@@ -108,6 +114,9 @@
             class="form-control"
             id="name"
           />
+          <span v-if="v$.formReg.name.$error">
+            {{ v$.formReg.name.$errors[0].$message }}
+          </span>
         </div>
         <div class="mb-3">
           <label for="email" class="form-label">Почта</label>
@@ -117,6 +126,9 @@
             class="form-control"
             id="email"
           />
+          <span v-if="v$.formReg.email.$error">
+            {{ v$.formReg.email.$errors[0].$message }}
+          </span>
         </div>
         <div class="mb-3">
           <label for="password" class="form-label">Пароль</label>
@@ -126,6 +138,9 @@
             class="form-control"
             id="password"
           />
+          <span v-if="v$.formReg.password.$error">
+            {{ v$.formReg.password.$errors[0].$message }}
+          </span>
         </div>
         <div class="mb-3">
           <label for="confirmPassword" class="form-label"
@@ -137,6 +152,9 @@
             class="form-control"
             id="confirmPassword"
           />
+          <span v-if="v$.formReg.confirmPassword.$error">
+            {{ v$.formReg.confirmPassword.$errors[0].$message }}
+          </span>
         </div>
         <button type="submit" class="btn btn-primary mb-1">
           Зарегистрироваться
@@ -162,6 +180,7 @@ import {
   minLength,
   maxLength,
   sameAs,
+  helpers,
 } from "@vuelidate/validators";
 import { reactive, computed } from "vue";
 import axios from "axios";
@@ -188,18 +207,19 @@ export default {
     const rules = computed(() => {
       return {
         formAutoriz: {
-          name: { required },
-          password: { required },
+          name: { required: helpers.withMessage('Поле обязательно для заполнения', required) },
+          password: { required: helpers.withMessage('Поле обязательно для заполнения', required) },
         },
         formReg: {
-          name: { required, maxLength: maxLength(32) },
-          email: { required, email },
+          name: { required: helpers.withMessage('Поле обязательно для заполнения', required), maxLength: helpers.withMessage('Должно быть максимум 32 символа', maxLength(32)) },
+          email: { required: helpers.withMessage('Поле обязательно для заполнения', required), email: helpers.withMessage('Некорректная почта', email) },
           password: {
-            required,
-            minLength: minLength(6),
-            maxLength: maxLength(32),
+            required: helpers.withMessage('Поле обязательно для заполнения', required),
+            minLength: helpers.withMessage('Должно быть минимум 6 символов', minLength(6)),
+            maxLength: helpers.withMessage('Должно быть максимум 32 символа', maxLength(32)),
           },
-          confirmPassword: { required, sameAs: sameAs(state.formReg.password) },
+          confirmPassword: { required: helpers.withMessage('Поле обязательно для заполнения', required),
+          sameAs: helpers.withMessage('Пароли должны совпадать', sameAs(state.formReg.password)) },
         },
       };
     });
@@ -290,7 +310,7 @@ export default {
             this.step = 0;
           })
           .catch(() => {
-            console.log("Пользователь не найден");
+            alert("Такого пользователя не существует");
           });
       } else {
         console.log("Авторизация прошла неудачно");
@@ -318,7 +338,7 @@ export default {
             this.step = 0;
           })
           .catch(() => {
-            console.log("Пользователь зарегистрирован");
+            alert('Пользователь с данной почтой уже зарегистрирован')
           });
       } else {
         console.log("Регистрация прошла неудачно");
