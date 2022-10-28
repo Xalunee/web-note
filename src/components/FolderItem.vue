@@ -4,7 +4,7 @@
     v-bind:style="{ 'background-color': folder.color }"
   >
     <div>
-      <h5>
+      <h5 class="mb-0">
         <strong>{{ folder.name }}</strong>
       </h5>
       <p>Заметки: {{ folder.notesCount }}</p>

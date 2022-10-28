@@ -8,7 +8,7 @@
         <strong>{{ note.title }}</strong>
       </h5>
       <div class="d-flex border-top p-2">
-        <p>{{ note.content }}</p>
+        <p class="content">{{ note.content }}</p>
       </div>
       <div class="note__btns d-flex justify-content-between">
         <button class="btn btn-dark btn-sm" @click="$emit('edit', note)">
@@ -39,5 +39,11 @@ export default {
 <style scoped>
 .note {
   width: 300px;
+  height: auto;
+}
+
+.content {
+  word-wrap: normal;
+  height: 50px;
 }
 </style>

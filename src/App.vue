@@ -22,7 +22,7 @@
             @showNotes="showNotes"
           />
         </div>
-        <div class="right-side col-9 text-center">
+        <div class="right-side col-9 text-center ps-5">
           <h4>Заметки</h4>
           <button
             v-if="selectedFolderId.length > 0"
