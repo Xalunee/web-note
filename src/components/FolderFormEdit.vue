@@ -27,9 +27,10 @@ export default {
     return {
       folder: {
         name: "",
-        color: "",
+        color: "White",
       },
       colorOptions: [
+        { value: "White", name: "White" },
         { value: "Blue", name: "Blue" },
         { value: "Orange", name: "Orange" },
         { value: "Yellow", name: "Yellow" },

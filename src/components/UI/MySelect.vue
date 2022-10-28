@@ -1,6 +1,5 @@
 <template>
   <select :value="modelValue" @change="changeOption">
-    <option value="White">White</option>
     <option
       v-for="option in options"
       :key="option.value"

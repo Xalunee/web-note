@@ -6,19 +6,16 @@
       <div class="row row-cols-2">
         <div class="left-side col-3">
           <h4>Папки</h4>
-          <button
-            @click="showDialog"
-            class="btn btn-outline-success btn-lg"
-          >
+          <button @click="showDialog" class="btn btn-outline-success btn-lg">
             Создать
           </button>
           <my-dialog v-model:show="dialogVisible">
-            <folder-form @create="createFolder"/>
+            <folder-form @create="createFolder" />
           </my-dialog>
           <my-dialog v-model:show="dialogEditVisible">
             <folder-form-edit @edit="editFolderForm" />
           </my-dialog>
-          <folder-list 
+          <folder-list
             :folders="folders"
             @remove="removeFolder"
             @edit="editFolder"
@@ -40,11 +37,15 @@
           <my-dialog v-model:show="dialogEditNoteVisible">
             <note-form-edit @edit="editNoteForm" />
           </my-dialog>
+          <my-dialog v-model:show="dialogMoveNoteVisible">
+            <NoteFormMove @move="moveNoteForm" :options="folderOptions" />
+          </my-dialog>
           <div class="notes">
             <notes-list
               :notes="notes"
               @edit="editNote"
               @remove="removeNote"
+              @move="moveNote"
               class="d-flex flex-wrap"
             />
           </div>
@@ -168,7 +169,7 @@ import FolderFormEdit from "./components/FolderFormEdit.vue";
 import NotesList from "./components/NotesList.vue";
 import NoteFormCreate from "./components/NoteFormCreate.vue";
 import NoteFormEdit from "./components/NoteFormEdit.vue";
-
+import NoteFormMove from "./components/NoteFormMove.vue";
 
 export default {
   setup() {
@@ -213,14 +214,16 @@ export default {
       step: 1,
       userInfo: {},
       folders: [],
+      folderOptions: [],
       notes: [],
       dialogVisible: false,
       dialogEditVisible: false,
       dialogNoteVisible: false,
       dialogEditNoteVisible: false,
-      selectedFolderEditId: '',
-      selectedFolderId: '',
-      selectedNoteEditId: '',
+      dialogMoveNoteVisible: false,
+      selectedFolderEditId: "",
+      selectedFolderId: "",
+      selectedNoteEditId: "",
     };
   },
   mounted() {
@@ -323,13 +326,14 @@ export default {
     },
     async fetchUserInfo() {
       try {
-        const response = await
-        axios
-        .get("https://test-api.misaka.net.ru/api/Account/user", {
-          headers: {
-            Authorization: `Bearer ${localStorage.accessToken}`,
-          },
-        });
+        const response = await axios.get(
+          "https://test-api.misaka.net.ru/api/Account/user",
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.accessToken}`,
+            },
+          }
+        );
         this.userInfo.userName = response.data.username;
         this.userInfo.userEmail = response.data.email;
       } catch (e) {
@@ -338,17 +342,20 @@ export default {
     },
     createFolder(folder) {
       axios
-        .post("https://test-api.misaka.net.ru/api/Folders", {
-          name: folder.name,
-          color: folder.color
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.accessToken}`,
+        .post(
+          "https://test-api.misaka.net.ru/api/Folders",
+          {
+            name: folder.name,
+            color: folder.color,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.accessToken}`,
+            },
           }
-        })
+        )
         .then(() => {
-          this.fetchFolders()
+          this.fetchFolders();
         })
         .catch(() => {
           console.log("Ошибка на добавление папки");
@@ -357,54 +364,59 @@ export default {
     },
     removeFolder(folder) {
       axios
-      .delete(`https://test-api.misaka.net.ru/api/Folders/${folder.id}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.accessToken}`,
-        }
-      })
-      .then(() => {
-        this.fetchFolders();
-      })
-      .catch(() => {
-        console.log('Папка не удалена')
-      })
+        .delete(`https://test-api.misaka.net.ru/api/Folders/${folder.id}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.accessToken}`,
+          },
+        })
+        .then(() => {
+          this.fetchFolders();
+        })
+        .catch(() => {
+          console.log("Папка не удалена");
+        });
     },
     editFolder(folder) {
       this.dialogEditVisible = true;
-      this.selectedFolderEditId = folder.id
+      this.selectedFolderEditId = folder.id;
     },
     editFolderForm(folder) {
       axios
-      .put(`https://test-api.misaka.net.ru/api/Folders/${this.selectedFolderEditId}`,
-      {
-        name: folder.name,
-        color: folder.color
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.accessToken}`,
-        }
-      })
-      .then(() => {
-        this.fetchFolders();
-        this.dialogEditVisible = false;
-      })
-      .catch(() => {
-        console.log('Папка не изменилась')
-      })
+        .put(
+          `https://test-api.misaka.net.ru/api/Folders/${this.selectedFolderEditId}`,
+          {
+            name: folder.name,
+            color: folder.color,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.accessToken}`,
+            },
+          }
+        )
+        .then(() => {
+          this.fetchFolders();
+          this.dialogEditVisible = false;
+        })
+        .catch(() => {
+          console.log("Папка не изменилась");
+        });
     },
     createNote(note) {
       axios
-        .post(`https://test-api.misaka.net.ru/api/Folders/${this.selectedFolderId}/notes`, {
-          title: note.title,
-          content: note.content,
-          color: note.color
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.accessToken}`,
+        .post(
+          `https://test-api.misaka.net.ru/api/Folders/${this.selectedFolderId}/notes`,
+          {
+            title: note.title,
+            content: note.content,
+            color: note.color,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.accessToken}`,
+            },
           }
-        })
+        )
         .then(() => {
           this.fetchNotes();
           this.fetchFolders();
@@ -417,18 +429,18 @@ export default {
     },
     removeNote(note) {
       axios
-      .delete(`https://test-api.misaka.net.ru/api/Notes/${note.id}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.accessToken}`,
-        }
-      })
-      .then(() => {
-        this.fetchNotes();
-        this.fetchFolders();
-      })
-      .catch(() => {
-        console.log('Заметка не удалена');
-      })
+        .delete(`https://test-api.misaka.net.ru/api/Notes/${note.id}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.accessToken}`,
+          },
+        })
+        .then(() => {
+          this.fetchNotes();
+          this.fetchFolders();
+        })
+        .catch(() => {
+          console.log("Заметка не удалена");
+        });
     },
     editNote(note) {
       this.dialogEditNoteVisible = true;
@@ -436,24 +448,33 @@ export default {
     },
     editNoteForm(note) {
       axios
-      .put(`https://test-api.misaka.net.ru/api/Notes/${this.selectedNoteEditId}`,
-      {
-        title: note.title,
-        content: note.content,
-        color: note.color
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.accessToken}`,
-        }
-      })
-      .then(() => {
-        this.fetchNotes();
-        this.dialogEditNoteVisible = false;
-      })
-      .catch(() => {
-        console.log('Заметка не изменилась')
-      })
+        .put(
+          `https://test-api.misaka.net.ru/api/Notes/${this.selectedNoteEditId}`,
+          {
+            title: note.title,
+            content: note.content,
+            color: note.color,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.accessToken}`,
+            },
+          }
+        )
+        .then(() => {
+          this.fetchNotes();
+          this.dialogEditNoteVisible = false;
+        })
+        .catch(() => {
+          console.log("Заметка не изменилась");
+        });
+    },
+    moveNote() {
+      this.dialogMoveNoteVisible = true;
+    },
+    moveNoteForm() {
+      console.log("Изменение формы");
+      this.dialogMoveNoteVisible = false;
     },
     showNotes(folder) {
       this.selectedFolderId = folder.id;
@@ -467,32 +488,47 @@ export default {
     },
     async fetchFolders() {
       try {
-        const response = await
-        axios.get("https://test-api.misaka.net.ru/api/Folders", {
-          headers: {
-            Authorization: `Bearer ${localStorage.accessToken}`,
-          },
-        });
+        const response = await axios.get(
+          "https://test-api.misaka.net.ru/api/Folders",
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.accessToken}`,
+            },
+          }
+        );
         this.folders = response.data;
+        for (const folder of this.folders) {
+          this.folderOptions.push({ value: folder.name, name: folder.name });
+        }
       } catch (e) {
         console.log("Ошибка получения папок");
       }
     },
     async fetchNotes() {
       try {
-        const response = await
-        axios.get(`https://test-api.misaka.net.ru/api/Folders/${this.selectedFolderId}/notes`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.accessToken}`,
-          },
-        });
+        const response = await axios.get(
+          `https://test-api.misaka.net.ru/api/Folders/${this.selectedFolderId}/notes`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.accessToken}`,
+            },
+          }
+        );
         this.notes = response.data;
       } catch (e) {
-      console.log("Ошибка получения заметок");
+        console.log("Ошибка получения заметок");
       }
-    }
+    },
   },
-  components: { FolderForm, FolderList, FolderFormEdit, NotesList, NoteFormCreate, NoteFormEdit },
+  components: {
+    FolderForm,
+    FolderList,
+    FolderFormEdit,
+    NotesList,
+    NoteFormCreate,
+    NoteFormEdit,
+    NoteFormMove,
+  },
 };
 </script>
 

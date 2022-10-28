@@ -17,6 +17,9 @@
         <button class="btn btn-danger btn-sm" @click="$emit('remove', note)">
           Удалить
         </button>
+        <button class="btn btn-info btn-sm" @click="$emit('move', note)">
+          Переместить
+        </button>
       </div>
     </div>
   </div>

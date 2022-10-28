@@ -16,7 +16,9 @@
       <button class="btn btn-danger btn-sm" @click="$emit('remove', folder)">
         Удалить
       </button>
-      <button class="btn btn-info btn-sm" @click="$emit('showNotes', folder)">Выбрать папку</button>
+      <button class="btn btn-info btn-sm" @click="$emit('showNotes', folder)">
+        Выбрать папку
+      </button>
     </div>
   </div>
 </template>

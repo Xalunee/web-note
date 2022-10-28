@@ -16,6 +16,7 @@
     </label>
     <textarea
       v-model="note.content"
+      maxlength="256"
       class="form-control textarea mb-3"
       id="content"
     >
@@ -40,9 +41,10 @@ export default {
       note: {
         title: "",
         content: "",
-        color: "",
+        color: "White",
       },
       colorOptions: [
+        { value: "White", name: "White" },
         { value: "Blue", name: "Blue" },
         { value: "Orange", name: "Orange" },
         { value: "Yellow", name: "Yellow" },
@@ -67,4 +69,10 @@ export default {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.textarea {
+  height: 200px;
+  width: 300px;
+  resize: none;
+}
+</style>
