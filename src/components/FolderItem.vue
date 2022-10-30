@@ -7,7 +7,7 @@
       <h5 class="mb-0">
         <strong>{{ folder.name }}</strong>
       </h5>
-      <p>Заметки: {{ folder.notesCount }}</p>
+      <p class="mb-2">Заметки: {{ folder.notesCount }}</p>
     </div>
     <div class="folder__btns d-flex justify-content-between">
       <button class="btn btn-dark btn-sm" @click="$emit('edit', folder)">
@@ -34,4 +34,15 @@ export default {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+@media (max-width: 811px) {
+  .folder__btns {
+    flex-direction: column;
+    row-gap: 5px;
+  }
+  
+  .btn-sm {
+    font-size: 12px;
+  }
+}
+</style>

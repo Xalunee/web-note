@@ -7,8 +7,8 @@
       <h5>
         <strong>{{ note.title }}</strong>
       </h5>
-      <div class="d-flex border-top p-2">
-        <p class="content">{{ note.content }}</p>
+      <div class="d-flex border-top content">
+        <p class="m-0">{{ note.content }}</p>
       </div>
       <div class="note__btns d-flex justify-content-between">
         <button class="btn btn-dark btn-sm" @click="$emit('edit', note)">
@@ -43,7 +43,35 @@ export default {
 }
 
 .content {
-  word-wrap: normal;
-  height: 50px;
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+.content > * {
+  text-align: left;
+  width: 260px;
+  word-wrap: break-word;
+}
+
+@media (max-width: 811px) {
+  .note {
+    width: 220px;
+    height: auto;
+  }
+
+  .content {
+    height: auto;
+  }
+
+  .content > * {
+    width: 180px;
+  }
+  .note__btns {
+    flex-direction: column;
+    row-gap: 5px;
+  }
+
+  .btn-sm {
+    font-size: 12px;
+  }
 }
 </style>

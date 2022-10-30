@@ -1,8 +1,10 @@
 <template>
-  <div v-if="step === 0" class="text-center pt-2 100vh 100vw">
-    <h5>Имя: {{ userInfo.userName }}</h5>
-    <h5>Почта: {{ userInfo.userEmail }}</h5>
-    <div class="container mt-5">
+  <div v-if="step === 0" class="text-center 100vh 100vw">
+    <div class="user">
+      <h5>Имя: {{ userInfo.userName }}</h5>
+      <h5>Почта: {{ userInfo.userEmail }}</h5>
+    </div>
+    <div class="container">
       <div class="row row-cols-2">
         <div class="left-side col-3">
           <h4>Папки</h4>
@@ -22,7 +24,7 @@
             @showNotes="showNotes"
           />
         </div>
-        <div class="right-side col-9 text-center ps-5">
+        <div class="right-side col-8 text-center">
           <h4>Заметки</h4>
           <button
             v-if="selectedFolderId.length > 0"
@@ -576,4 +578,15 @@ export default {
 };
 </script>
 
-<style></style>
+<style>
+@media (max-width: 811px) {
+  .user {
+    margin-bottom: 20px;
+    padding-top: 10px;
+  }
+
+  .col-3 {
+    width: 33.33333333%;
+  }
+}
+</style>
