@@ -16,18 +16,13 @@
 import MySelect from "./UI/MySelect.vue";
 
 export default {
-  props: {
-    folderOptions: {
-      type: Array,
-      default: () => []
-    }
-  },
   data() {
     return {
       note: {
         folder: "",
         options: "",
       },
+      folderOptions: JSON.parse(localStorage.folders),
     };
   },
   methods: {

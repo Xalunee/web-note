@@ -38,7 +38,7 @@
             <note-form-edit @edit="editNoteForm" />
           </my-dialog>
           <my-dialog v-model:show="dialogMoveNoteVisible">
-            <NoteFormMove @move="moveNoteForm" :options="folderOptions" />
+            <NoteFormMove @move="moveNoteForm" />
           </my-dialog>
           <div class="notes">
             <notes-list
@@ -244,6 +244,7 @@ export default {
       selectedFolderEditId: "",
       selectedFolderId: "",
       selectedNoteEditId: "",
+      selectedNoteMoveId: "",
     };
   },
   mounted() {
@@ -489,11 +490,32 @@ export default {
           console.log("Заметка не изменилась");
         });
     },
-    moveNote() {
+    moveNote(note) {
+      this.fetchFolders();
       this.dialogMoveNoteVisible = true;
+      this.selectedFolderEditId = note.id;
     },
-    moveNoteForm() {
-      console.log("Изменение формы");
+    moveNoteForm(note) {
+      const id = this.selectedFolderEditId;
+      const folderId = note.folder;
+      axios
+        .post(`https://test-api.misaka.net.ru/api/Notes/${id}/move-to/${folderId}`, {
+          id: id,
+          folderId: folderId,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.accessToken}`,
+          },
+        }
+        )
+        .then(() => {
+          this.fetchNotes();
+          this.fetchFolders();
+        })
+        .catch(() => {
+          console.log("Ошибка на перемещение заметки");
+        });
       this.dialogMoveNoteVisible = false;
     },
     showNotes(folder) {
@@ -517,9 +539,11 @@ export default {
           }
         );
         this.folders = response.data;
+        this.folderOptions = [];
         for (const folder of this.folders) {
-          this.folderOptions.push({ value: folder.name, name: folder.name });
+          this.folderOptions.push({ value: folder.id, name: folder.name });
         }
+        localStorage.folders = JSON.stringify(this.folderOptions);
       } catch (e) {
         console.log("Ошибка получения папок");
       }
